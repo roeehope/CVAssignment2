@@ -6,10 +6,7 @@ import matplotlib.image as mpimg
 from solution import Solution
 
 
-COST1 = 0.5
-COST2 = 3.0
-WIN_SIZE = 3
-DISPARITY_RANGE = 20
+
 ##########################################################
 # Don't forget to fill in your IDs!!!
 # students' IDs:
@@ -49,7 +46,18 @@ def load_data(is_your_data=False):
 
 
 def main():
+    global COST1
+    global COST2
+    COST1 = 0.5
+    COST2 = 3.0
+    global WIN_SIZE
+    WIN_SIZE = 3
+    global DISPARITY_RANGE
+    DISPARITY_RANGE = 20
     left_image, right_image = load_data()
+
+    #print(left_image.shape)
+
     solution = Solution()
     # Compute Sum-Square-Diff distance
     tt = tic()
@@ -72,6 +80,7 @@ def main():
     plt.imshow(label_map)
     plt.colorbar()
     plt.title('Naive Depth')
+    plt.show()
 
     # Smooth disparity image - Dynamic Programming
     tt = tic()
@@ -87,6 +96,7 @@ def main():
     plt.imshow(label_smooth_dp)
     plt.colorbar()
     plt.title('Smooth Depth - DP')
+    plt.show()
 
     # Compute forward map of the left image to the right image.
     mapped_image_smooth_dp = forward_map(left_image, labels=label_smooth_dp)
