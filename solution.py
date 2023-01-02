@@ -27,12 +27,44 @@ class Solution:
             possible disparity values. The tensor shape should be:
             HxWx(2*dsp_range+1).
         """
-        num_of_rows, num_of_cols = left_image.shape[0], left_image.shape[1]
+        # initializing the SSDD tensor with zeros
+        #num_of_rows, num_of_cols = left_image.shape[0], left_image.shape[1]
         disparity_values = range(-dsp_range, dsp_range+1)
-        ssdd_tensor = np.zeros((num_of_rows,
-                                num_of_cols,
-                                len(disparity_values)))
+        #ssdd_tensor = np.zeros((num_of_rows,
+        #                        num_of_cols,
+        #                        len(disparity_values)))
         """INSERT YOUR CODE HERE"""
+
+        
+        def shifted(mat,shift):
+            """
+            given a 2d array (mat) and a shift amount,
+            returns the matrix, shifted by the given
+            number of columns(new columns initialized with zeros)
+            """
+            rolled = np.roll(mat,shift,axis=1)
+            if shift > 0:
+                rolled[:,0:shift] = 0
+            elif shift < 0:
+                rolled[:,shift:] = 0
+            return rolled
+
+        def ssd_calc(disparity,left,right):
+            rightS = shifted(right,-disparity)
+            sd = np.sum(np.square(left - rightS),axis=2)
+            kernel = np.ones((win_size,win_size))
+            convolution = convolve2d(sd,kernel,mode='same',boundary='fill', fillvalue=0)
+            return convolution
+            
+        layers = []
+        for d in disparity_values:
+            res = ssd_calc(d,left_image,right_image)
+            layers.append(res)
+
+        ssdd_tensor = np.stack(layers,axis = 2 )
+
+
+        # normalizing the SSDD
         ssdd_tensor -= ssdd_tensor.min()
         ssdd_tensor /= ssdd_tensor.max()
         ssdd_tensor *= 255.0
@@ -54,9 +86,14 @@ class Solution:
         Returns:
             Naive labels HxW matrix.
         """
+
+        #print (ssdd_tensor.shape)
         # you can erase the label_no_smooth initialization.
         label_no_smooth = np.zeros((ssdd_tensor.shape[0], ssdd_tensor.shape[1]))
         """INSERT YOUR CODE HERE"""
+
+        label_no_smooth = np.argmin(ssdd_tensor, axis = 2) 
+
         return label_no_smooth
 
     @staticmethod
@@ -76,8 +113,34 @@ class Solution:
             score of the best route.
         """
         num_labels, num_of_cols = c_slice.shape[0], c_slice.shape[1]
+        print(num_labels)
+        print(num_of_cols)
         l_slice = np.zeros((num_labels, num_of_cols))
         """INSERT YOUR CODE HERE"""
+
+        l_slice[:,0] = c_slice[:,0]
+        
+        mMatrix = np.zeros_like(l_slice)
+
+
+        for i in range(1,num_of_cols):
+            for d in range(num_labels):
+                a = l_slice[d,i-1]
+
+                if d - 1 >= 0 and d+1 < num_labels:
+                    b = min(l_slice[d+1,i-1],l_slice[d-1,i-1])+ p1
+                elif d - 1 >= 0 :
+                    b = l_slice[d-1,i-1]+ p1
+                else:
+                    b = l_slice[d+1,i-1]+ p1
+
+                c = np.min(l_slice[:,i-1])+ p2
+
+                mMatrix[d,i] = min(a,b,c)
+
+            l_slice[:,i] = c_slice[:,i] +mMatrix[:,i]- min(l_slice[:,i-1])
+
+
         return l_slice
 
     def dp_labeling(self,
@@ -103,6 +166,11 @@ class Solution:
         """
         l = np.zeros_like(ssdd_tensor)
         """INSERT YOUR CODE HERE"""
+        
+
+        for i in range(ssdd_tensor.shape[0]):
+            l[i,:,:] = np.transpose(self.dp_grade_slice(np.transpose(ssdd_tensor[i,:,:]),p1,p2))
+    
         return self.naive_labeling(l)
 
     def dp_labeling_per_direction(self,
