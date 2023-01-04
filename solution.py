@@ -197,7 +197,7 @@ class Solution:
         dictSlices[5] = np.fliplr(ssdd_tensor)
 
         dictSlices[3] = np.transpose(ssdd_tensor,(1, 0,2))
-        dictSlices[7] = np.flip( np.transpose(ssdd_tensor,(1, 0,2)) ,0)
+        dictSlices[7] = np.flipud( np.transpose(ssdd_tensor,(1, 0,2)))
         #dictSlices[7] = np.flip( np.transpose(ssdd_tensor,(1, 0,2)) ,(1,0))
 
 
@@ -263,14 +263,16 @@ class Solution:
         direction_to_slice[2] = direction_to_slice[1]
 
         direction_to_slice[3] = direction_to_slice[1] #self.dp_labeling(directions[3],p1=p1,p2=p2) #self.dp_labeling(directions[3],p1=p1,p2=p2)
+        direction_to_slice[3] = np.transpose(self.dp_labeling(directions[3],p1=p1,p2=p2),(1,0))
 
         direction_to_slice[4] = direction_to_slice[1]
 
-        direction_to_slice[5] = np.fliplr(self.dp_labeling(directions[5],p1=p1,p2=p2)) #direction_to_slice[1]
+        direction_to_slice[5] = direction_to_slice[1] #np.fliplr(self.dp_labeling(directions[5],p1=p1,p2=p2)) #direction_to_slice[1]
+        direction_to_slice[5] = np.fliplr(self.dp_labeling(directions[5],p1=p1,p2=p2))
 
         direction_to_slice[6] = direction_to_slice[1]
 
-        direction_to_slice[7] = direction_to_slice[1]
+        direction_to_slice[7] = np.transpose(np.flipud(self.dp_labeling(directions[7],p1=p1,p2=p2)),(1,0)) #direction_to_slice[1]
 
         direction_to_slice[8] = direction_to_slice[1]
 
