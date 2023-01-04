@@ -80,7 +80,7 @@ def main():
     plt.imshow(label_map)
     plt.colorbar()
     plt.title('Naive Depth')
-    plt.show()
+    #plt.show()
 
     # Smooth disparity image - Dynamic Programming
     tt = tic()
@@ -96,7 +96,7 @@ def main():
     plt.imshow(label_smooth_dp)
     plt.colorbar()
     plt.title('Smooth Depth - DP')
-    plt.show()
+    #plt.show()
 
     # Compute forward map of the left image to the right image.
     mapped_image_smooth_dp = forward_map(left_image, labels=label_smooth_dp)
@@ -131,6 +131,8 @@ def main():
         else:
             plt.imshow(direction_to_vote[i - 1])
             plt.title(f'Direction {i - 1}')
+
+    plt.show()
 
     # Smooth disparity image - Semi-Global Mapping
     tt = tic()
