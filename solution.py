@@ -113,8 +113,8 @@ class Solution:
             score of the best route.
         """
         num_labels, num_of_cols = c_slice.shape[0], c_slice.shape[1]
-        print(num_labels)
-        print(num_of_cols)
+        #print(num_labels)
+        #print(num_of_cols)
         l_slice = np.zeros((num_labels, num_of_cols))
         """INSERT YOUR CODE HERE"""
 
@@ -173,6 +173,45 @@ class Solution:
     
         return self.naive_labeling(l)
 
+    def extractSlices(self,ssdd_tensor: np.ndarray):
+
+        def mainDiag():
+            ans = []
+            array = ssdd_tensor
+            diags = [array.diagonal(i,0,1).T for i in range(-array.shape[0]+1,array.shape[1] )]
+            return diags
+
+        def secondaryDiag():
+            ans = []
+            array = ssdd_tensor[::-1,:]
+            diags = [array.diagonal(i,0,1).T for i in range(-array.shape[0]+1,array.shape[1] )]
+            return diags
+
+        def makeSliceTensor(arrToSlice):
+            return [arrToSlice[i,:,:] for i in range(arrToSlice.shape[0])]
+
+        dictSlices = {}
+
+        # we will go with the direction of the task
+        dictSlices[1] = makeSliceTensor(ssdd_tensor)
+        dictSlices[5] = makeSliceTensor(np.flip(ssdd_tensor,1))
+
+        dictSlices[3] = makeSliceTensor(np.transpose(ssdd_tensor,(1, 0,2)))
+        dictSlices[7] = makeSliceTensor(np.flip( np.transpose(ssdd_tensor,(1, 0,2)) ,1))
+
+
+
+
+        dictSlices[2] = mainDiag()
+        dictSlices[6] = [np.flip(i,1) for i in dictSlices[2]]
+
+        dictSlices[3] = secondaryDiag()
+        dictSlices[8] = [np.flip(i,1) for i in dictSlices[3]]
+
+        return dictSlices
+        
+
+
     def dp_labeling_per_direction(self,
                                   ssdd_tensor: np.ndarray,
                                   p1: float,
@@ -204,7 +243,33 @@ class Solution:
         num_of_directions = 8
         l = np.zeros_like(ssdd_tensor)
         direction_to_slice = {}
-        """INSERT YOUR CODE HERE"""
+        """INSERT YOUR CODE HERE
+        for i in range(ssdd_tensor.shape[0]):
+            l[i,:,:] = np.transpose(self.dp_grade_slice(np.transpose(ssdd_tensor[i,:,:]),p1,p2))
+    
+        return self.naive_labeling(l)
+        """
+
+        directions = self.extractSlices(ssdd_tensor)
+
+        direction_to_slice[1] = self.dp_labeling(ssdd_tensor,p1=p1,p2=p2)
+
+        direction_to_slice[2] = direction_to_slice[1]
+
+        direction_to_slice[3] = self.dp_labeling(ssdd_tensor,p1=p1,p2=p2)
+
+        direction_to_slice[4] = direction_to_slice[1]
+
+        direction_to_slice[5] = self.dp_labeling(ssdd_tensor,p1=p1,p2=p2)
+
+        direction_to_slice[6] = direction_to_slice[1]
+
+        direction_to_slice[7] = self.dp_labeling(ssdd_tensor,p1=p1,p2=p2)
+
+        direction_to_slice[8] = direction_to_slice[1]
+
+        
+
         return direction_to_slice
 
     def sgm_labeling(self, ssdd_tensor: np.ndarray, p1: float, p2: float):
