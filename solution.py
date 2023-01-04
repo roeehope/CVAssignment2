@@ -197,7 +197,7 @@ class Solution:
         dictSlices[5] = np.fliplr(ssdd_tensor)
 
         dictSlices[3] = np.transpose(ssdd_tensor,(1, 0,2))
-        dictSlices[7] = np.flipud( np.transpose(ssdd_tensor,(1, 0,2)))
+        dictSlices[7] = makeSliceTensor(np.flipud( np.transpose(ssdd_tensor,(1, 0,2))))
         #dictSlices[7] = np.flip( np.transpose(ssdd_tensor,(1, 0,2)) ,(1,0))
 
 
@@ -256,29 +256,43 @@ class Solution:
         dictSlices[7] = np.flip( np.transpose(ssdd_tensor,(1, 0,2)) ,0)
         """
 
+    
+
         directions = self.extractSlices(ssdd_tensor)
+
+
 
         direction_to_slice[1] = self.dp_labeling(directions[1],p1=p1,p2=p2)
 
         direction_to_slice[2] = direction_to_slice[1]
 
         direction_to_slice[3] = direction_to_slice[1] #self.dp_labeling(directions[3],p1=p1,p2=p2) #self.dp_labeling(directions[3],p1=p1,p2=p2)
-        direction_to_slice[3] = np.transpose(self.dp_labeling(directions[3],p1=p1,p2=p2),(1,0))
+        #direction_to_slice[3] = np.transpose(self.dp_labeling(directions[3],p1=p1,p2=p2),(1,0))
 
         direction_to_slice[4] = direction_to_slice[1]
 
         direction_to_slice[5] = direction_to_slice[1] #np.fliplr(self.dp_labeling(directions[5],p1=p1,p2=p2)) #direction_to_slice[1]
-        direction_to_slice[5] = np.fliplr(self.dp_labeling(directions[5],p1=p1,p2=p2))
+        #direction_to_slice[5] = np.fliplr(self.dp_labeling(directions[5],p1=p1,p2=p2))
 
         direction_to_slice[6] = direction_to_slice[1]
 
-        direction_to_slice[7] = np.transpose(np.flipud(self.dp_labeling(directions[7],p1=p1,p2=p2)),(1,0)) #direction_to_slice[1]
+        direction_to_slice[7] = np.transpose(np.flipud(self.naive_labeling(self.createCostMapStraight(directions[7],p1,p2))),(1,0)) #direction_to_slice[1]
 
         direction_to_slice[8] = direction_to_slice[1]
 
         
 
         return direction_to_slice
+
+
+    def createCostMapStraight(self,list,p1,p2):
+        l = np.zeros((len(list),list[0].shape[0],list[0].shape[1]))
+        for index,row in enumerate (list):
+            l[index,:,:] = np.transpose(self.dp_grade_slice(np.transpose(row),p1,p2))
+
+        return l
+
+
 
     def sgm_labeling(self, ssdd_tensor: np.ndarray, p1: float, p2: float):
         """Estimate the depth map according to the SGM algorithm.
