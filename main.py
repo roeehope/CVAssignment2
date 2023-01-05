@@ -67,6 +67,7 @@ def main():
                                  dsp_range=DISPARITY_RANGE)
     print(f"SSDD calculation done in {toc(tt):.4f}[seconds]")
 
+    '''
     # Construct naive disparity image
     tt = tic()
     label_map = solution.naive_labeling(ssdd)
@@ -111,12 +112,15 @@ def main():
     plt.subplot(1, 3, 3)
     plt.imshow(right_image)
     plt.title('Right Image')
+    '''
 
     # Generate a dictionary which maps each direction to a label map:
     tt = tic()
     direction_to_vote = solution.dp_labeling_per_direction(ssdd, COST1, COST2)
     print(f"Dynamic programming in all directions done in {toc(tt):.4f}"
           f"[seconds]")
+
+    
 
     # Plot all directions as well as the image, in the center of the plot:
     plt.figure()

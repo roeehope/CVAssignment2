@@ -255,28 +255,32 @@ class Solution:
         dictSlices[3] = np.transpose(ssdd_tensor,(1, 0,2))
         dictSlices[7] = np.flip( np.transpose(ssdd_tensor,(1, 0,2)) ,0)
         """
+        def picture_straight(n,shape = ssdd_tensor.shape):
+            return self.naive_labeling(self.createCostMapStraight(directions[n],p1,p2,shape))
+
 
     
 
         directions = self.extractSlices(ssdd_tensor)
 
+        horizontal_shape = np.transpose(ssdd_tensor,(1,0,2)).shape
 
 
-        direction_to_slice[1] = self.dp_labeling(directions[1],p1=p1,p2=p2)
+        direction_to_slice[1] = picture_straight(1)
 
         direction_to_slice[2] = direction_to_slice[1]
 
         direction_to_slice[3] = direction_to_slice[1] #self.dp_labeling(directions[3],p1=p1,p2=p2) #self.dp_labeling(directions[3],p1=p1,p2=p2)
-        #direction_to_slice[3] = np.transpose(self.dp_labeling(directions[3],p1=p1,p2=p2),(1,0))
+        direction_to_slice[3] = np.transpose(picture_straight(3,horizontal_shape),(1,0))
 
         direction_to_slice[4] = direction_to_slice[1]
 
         direction_to_slice[5] = direction_to_slice[1] #np.fliplr(self.dp_labeling(directions[5],p1=p1,p2=p2)) #direction_to_slice[1]
-        #direction_to_slice[5] = np.fliplr(self.dp_labeling(directions[5],p1=p1,p2=p2))
+        direction_to_slice[5] = np.fliplr(picture_straight(5))
 
         direction_to_slice[6] = direction_to_slice[1]
 
-        direction_to_slice[7] = np.transpose(np.flipud(self.naive_labeling(self.createCostMapStraight(directions[7],p1,p2))),(1,0)) #direction_to_slice[1]
+        direction_to_slice[7] = np.transpose(np.flipud(picture_straight(7,horizontal_shape)),(1,0)) #direction_to_slice[1]
 
         direction_to_slice[8] = direction_to_slice[1]
 
@@ -284,9 +288,16 @@ class Solution:
 
         return direction_to_slice
 
+    def createCostMapDiagonal(self,list,p1,p2,shape):
+        l = np.zeros(shape)
 
-    def createCostMapStraight(self,list,p1,p2):
-        l = np.zeros((len(list),list[0].shape[0],list[0].shape[1]))
+
+    def createCostMapStraight(self,list,p1,p2,shape):
+
+        print("shape: ",shape)
+        print("list shape: ",(len(list),list[0].shape[0],list[0].shape[1]))
+
+        l = np.zeros(shape)
         for index,row in enumerate (list):
             l[index,:,:] = np.transpose(self.dp_grade_slice(np.transpose(row),p1,p2))
 
