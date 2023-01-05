@@ -20,7 +20,7 @@ def main():
     #    sliced = sliced +  [np.arange(row,index)]
     #print (len(sliced))
 
-    shape = (4,3)
+    shape = (4,3,2)
 
     z = np.random.randint(100,size = shape)
     r = np.zeros_like(z)
@@ -43,17 +43,17 @@ def main():
         for i in range (shape[0]):
             #print("X: ",rng[i:min(shape[1],shape[0])])
             #print("Y: ",rng[0 : min(shape[0]-i,shape[1])])
-            r[rng[i:shape[0]], rng[0 : shape[0]-i]] = diagonals[i]
+            r[rng[i:shape[0],:], rng[0 : shape[0]-i],:] = diagonals[i]
     else:
         rng = np.arange(0,shape[0])
         for i in range (shape[0]):
             #print("X,I: ",i," ",rng[i:min(shape[0]-i , shape[1]+i)])
             #print("Y: ",rng[0 : min(shape[0]-i,shape[1]+1)])
-            r[rng[i:shape[1]+i], rng[0 : min(shape[0]-i,shape[1])]] = diagonals[i]
+            r[rng[i:shape[1]+i], rng[0 : min(shape[0]-i,shape[1])],:] = diagonals[i]
             #print("matrix Z: \n",z)
 
     for i in range (shape[1]):
-        r[rng[0:min(shape[0],shape[1]-i)], rng[0:min(shape[0],shape[1]-i)]+i] = diagonals[-shape[1]+i]
+        r[rng[0:min(shape[0],shape[1]-i)], rng[0:min(shape[0],shape[1]-i)]+i,:] = diagonals[-shape[1]+i]
 
     
     
