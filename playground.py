@@ -20,7 +20,7 @@ def main():
     #    sliced = sliced +  [np.arange(row,index)]
     #print (len(sliced))
 
-    shape = (4,3,2)
+    shape = (3,4,2)
 
     z = np.random.randint(100,size = shape)
     r = np.zeros_like(z)
@@ -43,7 +43,7 @@ def main():
         for i in range (shape[0]):
             #print("X: ",rng[i:min(shape[1],shape[0])])
             #print("Y: ",rng[0 : min(shape[0]-i,shape[1])])
-            r[rng[i:shape[0],:], rng[0 : shape[0]-i],:] = diagonals[i]
+            r[rng[i:shape[0]], rng[0 : shape[0]-i],:] = diagonals[i]
     else:
         rng = np.arange(0,shape[0])
         for i in range (shape[0]):

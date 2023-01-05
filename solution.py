@@ -178,7 +178,9 @@ class Solution:
         def mainDiag():
             ans = []
             array = ssdd_tensor
-            diags = [array.diagonal(i,0,1).T for i in range(-array.shape[0]+1,array.shape[1] )]
+            diags = [array.diagonal(i,0,1).T for i in range(0,-array.shape[0],-1)] \
+            + [array.diagonal(i,0,1).T for i in range(0,array.shape[1] )]
+
             return diags
 
         def secondaryDiag():
@@ -283,6 +285,7 @@ class Solution:
         #direction_to_slice[5] = np.fliplr(picture_straight(5))
 
         direction_to_slice[6] = direction_to_slice[1]
+        direction_to_slice[7] = direction_to_slice[1]
 
         #direction_to_slice[7] = np.transpose(np.flipud(picture_straight(7,horizontal_shape)),(1,0)) #direction_to_slice[1]
 
@@ -302,13 +305,28 @@ class Solution:
             diags = [array.diagonal(i,0,1).T for i in range(-array.shape[0]+1,array.shape[1] )]
             return diags
         '''
-        l = np.zeros(shape)
+        r = np.zeros(shape)
 
-        rng = np.arange(shape[0])
-        for i in range(shape[0]+1,shape[1]):
-            np.diag(l,) = np.array(list[i])
-        
-        return l
+        rng = np.arange(0,shape[1])
+
+        if shape[1] > shape[0]:
+            for i in range (shape[0]):
+            #print("X: ",rng[i:min(shape[1],shape[0])])
+            #print("Y: ",rng[0 : min(shape[0]-i,shape[1])])
+                r[rng[i:shape[0]], rng[0 : shape[0]-i],:] = diagonals[i]
+        else:
+            rng = np.arange(0,shape[0])
+            for i in range (shape[0]):
+                #print("X,I: ",i," ",rng[i:min(shape[0]-i , shape[1]+i)])
+                #print("Y: ",rng[0 : min(shape[0]-i,shape[1]+1)])
+                r[rng[i:shape[1]+i], rng[0 : min(shape[0]-i,shape[1])],:] = diagonals[i]
+                #print("matrix Z: \n",z)
+
+        for i in range (shape[1]):
+            r[rng[0:min(shape[0],shape[1]-i)], rng[0:min(shape[0],shape[1]-i)]+i,:] = diagonals[-shape[1]+i]
+
+        return r
+
         
 
     def createCostMapDiagonal(self,list,p1,p2,shape):
