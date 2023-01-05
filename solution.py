@@ -193,10 +193,10 @@ class Solution:
         dictSlices = {}
 
         # we will go with the direction of the task
-        dictSlices[1] = ssdd_tensor
-        dictSlices[5] = np.fliplr(ssdd_tensor)
+        dictSlices[1] = makeSliceTensor(ssdd_tensor)
+        dictSlices[5] = makeSliceTensor(np.fliplr(ssdd_tensor))
 
-        dictSlices[3] = np.transpose(ssdd_tensor,(1, 0,2))
+        dictSlices[3] = makeSliceTensor(np.transpose(ssdd_tensor,(1, 0,2)))
         dictSlices[7] = makeSliceTensor(np.flipud( np.transpose(ssdd_tensor,(1, 0,2))))
         #dictSlices[7] = np.flip( np.transpose(ssdd_tensor,(1, 0,2)) ,(1,0))
 
@@ -265,22 +265,26 @@ class Solution:
 
         horizontal_shape = np.transpose(ssdd_tensor,(1,0,2)).shape
 
+        direction_to_slice[2] = self.naive_labeling(self.createCostMapDiagonal(directions[2],p1,p2,ssdd_tensor.shape))
 
-        direction_to_slice[1] = picture_straight(1)
 
-        direction_to_slice[2] = direction_to_slice[1]
+        #direction_to_slice[1] = picture_straight(1)
+        direction_to_slice[1] = direction_to_slice[2]
+
+
+        #direction_to_slice[2] = self.naive_labeling(self.createCostMapDiagonal(direction_to_slice[2],p1,p2,ssdd_tensor.shape))
 
         direction_to_slice[3] = direction_to_slice[1] #self.dp_labeling(directions[3],p1=p1,p2=p2) #self.dp_labeling(directions[3],p1=p1,p2=p2)
-        direction_to_slice[3] = np.transpose(picture_straight(3,horizontal_shape),(1,0))
+        #direction_to_slice[3] = np.transpose(picture_straight(3,horizontal_shape),(1,0))
 
         direction_to_slice[4] = direction_to_slice[1]
 
         direction_to_slice[5] = direction_to_slice[1] #np.fliplr(self.dp_labeling(directions[5],p1=p1,p2=p2)) #direction_to_slice[1]
-        direction_to_slice[5] = np.fliplr(picture_straight(5))
+        #direction_to_slice[5] = np.fliplr(picture_straight(5))
 
         direction_to_slice[6] = direction_to_slice[1]
 
-        direction_to_slice[7] = np.transpose(np.flipud(picture_straight(7,horizontal_shape)),(1,0)) #direction_to_slice[1]
+        #direction_to_slice[7] = np.transpose(np.flipud(picture_straight(7,horizontal_shape)),(1,0)) #direction_to_slice[1]
 
         direction_to_slice[8] = direction_to_slice[1]
 
@@ -288,14 +292,40 @@ class Solution:
 
         return direction_to_slice
 
+    def diagonalsToMat(self,diagonals,shape):
+        print("diagonals",len(diagonals))
+        print("shape TO Mat", shape)
+        #print("DUMMY: ", dummy )
+        '''
+        ans = []
+            array = ssdd_tensor
+            diags = [array.diagonal(i,0,1).T for i in range(-array.shape[0]+1,array.shape[1] )]
+            return diags
+        '''
+        l = np.zeros(shape)
+
+        rng = np.arange(shape[0])
+        for i in range(shape[0]+1,shape[1]):
+            np.diag(l,) = np.array(list[i])
+        
+        return l
+        
+
     def createCostMapDiagonal(self,list,p1,p2,shape):
         l = np.zeros(shape)
+        sliced = []
+        for index,row in enumerate (list):
+            sliced.append(np.transpose(self.dp_grade_slice(np.transpose(row),p1,p2)))
+
+        print("shape of map diagonal",shape)
+        print("diagnoals of map diagonal",len(sliced))
+        return self.diagonalsToMat(sliced,shape)
 
 
     def createCostMapStraight(self,list,p1,p2,shape):
 
         print("shape: ",shape)
-        print("list shape: ",(len(list),list[0].shape[0],list[0].shape[1]))
+        #print("list shape: ",(len(list),list[0].shape[0],list[0].shape[1]))
 
         l = np.zeros(shape)
         for index,row in enumerate (list):
