@@ -19,6 +19,7 @@ def main():
     #for index,row in enumerate (list):
     #    sliced = sliced +  [np.arange(row,index)]
     #print (len(sliced))
+    #[np.flip(i,1) for i in dictSlices[2]]
 
     shape = (3,4,2)
 

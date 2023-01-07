@@ -175,18 +175,19 @@ class Solution:
 
     def extractSlices(self,ssdd_tensor: np.ndarray):
 
-        def mainDiag():
+        def mainDiag(array):
             ans = []
-            array = ssdd_tensor
+            
             diags = [array.diagonal(i,0,1).T for i in range(0,-array.shape[0],-1)] \
             + [array.diagonal(i,0,1).T for i in range(0,array.shape[1] )]
 
             return diags
 
-        def secondaryDiag():
+        def secondaryDiag(array):
             ans = []
-            array = ssdd_tensor[::-1,:]
-            diags = [array.diagonal(i,0,1).T for i in range(-array.shape[0]+1,array.shape[1] )]
+            array = array[::-1,:]
+            diags = [array.diagonal(i,0,1).T for i in range(0,-array.shape[0],-1)] \
+            + [array.diagonal(i,0,1).T for i in range(0,array.shape[1] )]
             return diags
 
         def makeSliceTensor(arrToSlice):
@@ -204,11 +205,11 @@ class Solution:
 
 
 
-        dictSlices[2] = mainDiag()
-        dictSlices[6] = [np.flip(i,1) for i in dictSlices[2]]
+        dictSlices[2] = mainDiag(ssdd_tensor)
+        dictSlices[6] = mainDiag(np.flipud(np.fliplr(ssdd_tensor)))
 
-        dictSlices[4] = secondaryDiag()
-        dictSlices[8] = [np.flip(i,1) for i in dictSlices[3]]
+        dictSlices[4] = secondaryDiag(ssdd_tensor)
+        dictSlices[8] = secondaryDiag(np.flipud(np.fliplr(ssdd_tensor)))
 
         return dictSlices
         
@@ -269,33 +270,34 @@ class Solution:
 
         direction_to_slice[2] = self.naive_labeling(self.createCostMapDiagonal(directions[2],p1,p2,ssdd_tensor.shape))
 
-
-        #direction_to_slice[1] = picture_straight(1)
         direction_to_slice[1] = direction_to_slice[2]
+        direction_to_slice[1] = picture_straight(1)
+       
 
 
         #direction_to_slice[2] = self.naive_labeling(self.createCostMapDiagonal(direction_to_slice[2],p1,p2,ssdd_tensor.shape))
 
         direction_to_slice[3] = direction_to_slice[1] #self.dp_labeling(directions[3],p1=p1,p2=p2) #self.dp_labeling(directions[3],p1=p1,p2=p2)
-        #direction_to_slice[3] = np.transpose(picture_straight(3,horizontal_shape),(1,0))
+        direction_to_slice[3] = np.transpose(picture_straight(3,horizontal_shape),(1,0))
 
         direction_to_slice[4] = direction_to_slice[1]
+        direction_to_slice[4] = self.naive_labeling(self.createCostMapDiagonal(directions[4],p1,p2,ssdd_tensor.shape))[::-1,:]
 
         direction_to_slice[5] = direction_to_slice[1] #np.fliplr(self.dp_labeling(directions[5],p1=p1,p2=p2)) #direction_to_slice[1]
-        #direction_to_slice[5] = np.fliplr(picture_straight(5))
+        direction_to_slice[5] = np.fliplr(picture_straight(5))
 
-        direction_to_slice[6] = direction_to_slice[1]
+        direction_to_slice[6] = np.flipud(np.fliplr(self.naive_labeling(self.createCostMapDiagonal(directions[6],p1,p2,ssdd_tensor.shape))))
         direction_to_slice[7] = direction_to_slice[1]
 
-        #direction_to_slice[7] = np.transpose(np.flipud(picture_straight(7,horizontal_shape)),(1,0)) #direction_to_slice[1]
+        direction_to_slice[7] = np.transpose(np.flipud(picture_straight(7,horizontal_shape)),(1,0)) #direction_to_slice[1]
 
-        direction_to_slice[8] = direction_to_slice[1]
-
+        direction_to_slice[8] = np.flipud(np.fliplr(self.naive_labeling(self.createCostMapDiagonal(directions[8],p1,p2,ssdd_tensor.shape))[::-1,:]))
+        #direction_to_slice[8] = direction_to_slice[1]
         
 
         return direction_to_slice
 
-    def diagonalsToMat(self,diagonals,shape):
+    def diagonalsToMat(self,diagonals,shape,reversed):
         print("diagonals",len(diagonals))
         print("shape TO Mat", shape)
         #print("DUMMY: ", dummy )
@@ -313,23 +315,33 @@ class Solution:
             for i in range (shape[0]):
             #print("X: ",rng[i:min(shape[1],shape[0])])
             #print("Y: ",rng[0 : min(shape[0]-i,shape[1])])
-                r[rng[i:shape[0]], rng[0 : shape[0]-i],:] = diagonals[i]
+            #[np.flip(i,1) for i in dictSlices[2]]
+                if reversed:
+                    r[rng[i:shape[0]], rng[0 : shape[0]-i],:] = np.flip(diagonals[i],1)
+                else:
+                    r[rng[i:shape[0]], rng[0 : shape[0]-i],:] = diagonals[i]
         else:
             rng = np.arange(0,shape[0])
             for i in range (shape[0]):
                 #print("X,I: ",i," ",rng[i:min(shape[0]-i , shape[1]+i)])
                 #print("Y: ",rng[0 : min(shape[0]-i,shape[1]+1)])
-                r[rng[i:shape[1]+i], rng[0 : min(shape[0]-i,shape[1])],:] = diagonals[i]
+                if reversed:
+                    r[rng[i:shape[1]+i], rng[0 : min(shape[0]-i,shape[1])],:] = np.flip(diagonals[i],1)
+                else:
+                    r[rng[i:shape[1]+i], rng[0 : min(shape[0]-i,shape[1])],:] = diagonals[i]
                 #print("matrix Z: \n",z)
 
         for i in range (shape[1]):
-            r[rng[0:min(shape[0],shape[1]-i)], rng[0:min(shape[0],shape[1]-i)]+i,:] = diagonals[-shape[1]+i]
+            if reversed:
+                r[rng[0:min(shape[0],shape[1]-i)], rng[0:min(shape[0],shape[1]-i)]+i,:] = np.flip(diagonals[-shape[1]+i],1)
+            else:
+                r[rng[0:min(shape[0],shape[1]-i)], rng[0:min(shape[0],shape[1]-i)]+i,:] = diagonals[-shape[1]+i]
 
         return r
 
         
 
-    def createCostMapDiagonal(self,list,p1,p2,shape):
+    def createCostMapDiagonal(self,list,p1,p2,shape,reversed = False):
         l = np.zeros(shape)
         sliced = []
         for index,row in enumerate (list):
@@ -337,7 +349,7 @@ class Solution:
 
         print("shape of map diagonal",shape)
         print("diagnoals of map diagonal",len(sliced))
-        return self.diagonalsToMat(sliced,shape)
+        return self.diagonalsToMat(sliced,shape,reversed)
 
 
     def createCostMapStraight(self,list,p1,p2,shape):
