@@ -81,8 +81,9 @@ def main():
     plt.imshow(label_map)
     plt.colorbar()
     plt.title('Naive Depth')
-    #plt.show()
+    plt.show()
 
+    
     # Smooth disparity image - Dynamic Programming
     tt = tic()
     label_smooth_dp = solution.dp_labeling(ssdd, COST1, COST2)
@@ -116,6 +117,7 @@ def main():
 
     # Generate a dictionary which maps each direction to a label map:
     tt = tic()
+    '''
     direction_to_vote = solution.dp_labeling_per_direction(ssdd, COST1, COST2)
     print(f"Dynamic programming in all directions done in {toc(tt):.4f}"
           f"[seconds]")
@@ -137,6 +139,7 @@ def main():
             plt.title(f'Direction {i - 1}')
 
     plt.show()
+    
 
     # Smooth disparity image - Semi-Global Mapping
     tt = tic()
@@ -165,14 +168,16 @@ def main():
     plt.subplot(1, 3, 3)
     plt.imshow(right_image)
     plt.title('Right Image')
+    plt.show()
+    '''
 
     ###########################################################################
     ########################### YOUR IMAGE PLAYGROUND #########################
     ###########################################################################
     COST1 = 0.5           # YOU MAY CHANGE THIS
     COST2 = 3.0           # YOU MAY CHANGE THIS
-    WIN_SIZE = 3          # YOU MAY CHANGE THIS
-    DISPARITY_RANGE = 20  # YOU MAY CHANGE THIS
+    WIN_SIZE = 3         # YOU MAY CHANGE THIS
+    DISPARITY_RANGE = 25  # YOU MAY CHANGE THIS
 
     your_left_image, your_right_image = load_data(is_your_data=True)
     solution = Solution()
@@ -186,6 +191,20 @@ def main():
 
     # plot all directions as well as the image, in the center of the plot
     tt = tic()
+
+    label_map = solution.naive_labeling(your_ssdd)
+    print(f"Naive labeling done in {toc(tt):.4f}[seconds]")
+
+    # plot the left image and the estimated depth
+    fig = plt.figure()
+    plt.subplot(1, 2, 1)
+    plt.imshow(your_left_image)
+    plt.subplot(1, 2, 2)
+    plt.imshow(label_map)
+    plt.colorbar()
+    plt.title('Naive Depth')
+
+    
     your_direction_to_vote = solution.dp_labeling_per_direction(your_ssdd,
                                                                 COST1,
                                                                 COST2)
@@ -203,7 +222,7 @@ def main():
         else:
             plt.imshow(your_direction_to_vote[i - 1])
             plt.title(f'Direction {i - 1}')
-
+    
     # Smooth disparity image - Semi-Global Mapping
     tt = tic()
     your_label_smooth_sgm = solution.sgm_labeling(your_ssdd, COST1, COST2)
@@ -230,8 +249,10 @@ def main():
     plt.subplot(1, 3, 3)
     plt.imshow(your_right_image)
     plt.title('Your Right Image')
+    
 
     plt.show()
+
 
 
 if __name__ == "__main__":

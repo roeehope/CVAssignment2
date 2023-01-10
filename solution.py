@@ -270,30 +270,19 @@ class Solution:
 
         direction_to_slice[2] = self.naive_labeling(self.createCostMapDiagonal(directions[2],p1,p2,ssdd_tensor.shape))
 
-        direction_to_slice[1] = direction_to_slice[2]
         direction_to_slice[1] = picture_straight(1)
-       
 
-
-        #direction_to_slice[2] = self.naive_labeling(self.createCostMapDiagonal(direction_to_slice[2],p1,p2,ssdd_tensor.shape))
-
-        direction_to_slice[3] = direction_to_slice[1] #self.dp_labeling(directions[3],p1=p1,p2=p2) #self.dp_labeling(directions[3],p1=p1,p2=p2)
         direction_to_slice[3] = np.transpose(picture_straight(3,horizontal_shape),(1,0))
 
-        direction_to_slice[4] = direction_to_slice[1]
         direction_to_slice[4] = self.naive_labeling(self.createCostMapDiagonal(directions[4],p1,p2,ssdd_tensor.shape))[::-1,:]
 
-        direction_to_slice[5] = direction_to_slice[1] #np.fliplr(self.dp_labeling(directions[5],p1=p1,p2=p2)) #direction_to_slice[1]
         direction_to_slice[5] = np.fliplr(picture_straight(5))
 
         direction_to_slice[6] = np.flipud(np.fliplr(self.naive_labeling(self.createCostMapDiagonal(directions[6],p1,p2,ssdd_tensor.shape))))
-        direction_to_slice[7] = direction_to_slice[1]
 
         direction_to_slice[7] = np.transpose(np.flipud(picture_straight(7,horizontal_shape)),(1,0)) #direction_to_slice[1]
 
         direction_to_slice[8] = np.flipud(np.fliplr(self.naive_labeling(self.createCostMapDiagonal(directions[8],p1,p2,ssdd_tensor.shape))[::-1,:]))
-        #direction_to_slice[8] = direction_to_slice[1]
-        
 
         return direction_to_slice
 
@@ -390,5 +379,36 @@ class Solution:
         num_of_directions = 8
         l = np.zeros_like(ssdd_tensor)
         """INSERT YOUR CODE HERE"""
+
+        direction_to_slice = {}
+
+        def picture_straight(n,shape = ssdd_tensor.shape):
+            return self.createCostMapStraight(directions[n],p1,p2,shape)
+
+    
+
+        directions = self.extractSlices(ssdd_tensor)
+
+        horizontal_shape = np.transpose(ssdd_tensor,(1,0,2)).shape
+
+        direction_to_slice[2] = self.createCostMapDiagonal(directions[2],p1,p2,ssdd_tensor.shape)
+
+        direction_to_slice[1] = picture_straight(1)
+
+        direction_to_slice[3] = np.transpose(picture_straight(3,horizontal_shape),(1,0,2))
+
+        direction_to_slice[4] = self.createCostMapDiagonal(directions[4],p1,p2,ssdd_tensor.shape)[::-1,:]
+
+        direction_to_slice[5] = np.fliplr(picture_straight(5))
+
+        direction_to_slice[6] = np.flipud(np.fliplr(self.createCostMapDiagonal(directions[6],p1,p2,ssdd_tensor.shape)))
+
+        direction_to_slice[7] = np.transpose(np.flipud(picture_straight(7,horizontal_shape)),(1,0,2)) #direction_to_slice[1]
+
+        direction_to_slice[8] = np.flipud(np.fliplr(self.createCostMapDiagonal(directions[8],p1,p2,ssdd_tensor.shape))[::-1,:])
+
+        #l = np.sum([direction_to_slice[1],direction_to_slice[2]],axis = 0)
+        l = np.sum([direction_to_slice[1],direction_to_slice[2],direction_to_slice[3],direction_to_slice[4],direction_to_slice[5],direction_to_slice[6],direction_to_slice[7],direction_to_slice[8]],axis = 0)
+
         return self.naive_labeling(l)
 

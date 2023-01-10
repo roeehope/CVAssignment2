@@ -24,10 +24,14 @@ def main():
     shape = (3,4,2)
 
     z = np.random.randint(100,size = shape)
+    a = np.random.randint(100,size = shape)
     r = np.zeros_like(z)
     rng = np.arange(0,shape[1])
     rng1 = np.arange(4)
     #z[rng1, rng1+1,:] = np.array([2**2,2+0.5])
+    l = np.sum([a,z],axis = 0)
+    print("L: \n",l)
+    '''
     print("Matrix Z before Change: \n",z)
 
     def mainDiag():
@@ -63,6 +67,7 @@ def main():
     #diags = [array[::-1,:].diagonal(i,0,1).T for i in range(-array.shape[0]+1,array.shape[1] )]
 #diags.extend(matrix.diagonal(i) for i in range(3,-4,-1))
     #print ([n.tolist() for n in diags])
+    '''
 
 if __name__=="__main__":
     main()
